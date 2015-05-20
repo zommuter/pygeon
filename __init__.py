@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 from inbox import Inbox
+from email.parser import BytesParser
 
 class Account(object):
     def __init__(self, username, password):
@@ -22,4 +23,5 @@ if __name__ == "__main__":
 
     account = Account(username, password)
     with Inbox(account, host) as inbox:
-        pass
+        for uid, msg in inbox.messages():
+            print(uid, msg['subject'])
