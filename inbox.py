@@ -8,12 +8,6 @@ from exceptions import HostNotFoundException
 
 
 class Inbox(object):
-    # This constructor allows using `with Inbox(...)` such that close() is automatically called for logout
-    def __new__(cls, account, host=None):
-        inbox = super().__new__(cls)
-        inbox.__init__(account, host)
-        return contextlib.closing(inbox)
-
     def __init__(self, account, host=None):
         if host is None or host=="":
             logging.debug("No hostname provided, trying detection from username %s",
@@ -27,6 +21,12 @@ class Inbox(object):
         self.client = IMAPClient(host, use_uid=True, ssl=True)  # TODO: treat non-ssl
         msg = self.client.login(account.username, account.password)
         logging.debug(msg)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
     def close(self):
         msg = self.client.logout()
