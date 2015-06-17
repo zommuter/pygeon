@@ -15,7 +15,7 @@ if __name__ == "__main__":
         host = account.readline().strip()
         logging.debug("Hostname: %s", host)
 
-    account = Account(username, password)
-    with Inbox(account, host) as inbox:
+    with Account(username, password, host) as account:
+        inbox = account.inbox
         for uid, msg in inbox.messages():
             print(uid, msg['subject'])
