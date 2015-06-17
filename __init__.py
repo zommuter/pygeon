@@ -1,13 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 from inbox import Inbox
-from email.parser import BytesParser
-
-class Account(object):
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
-
+from account import Account
 
 if __name__ == "__main__":
     logging.root.setLevel(logging.DEBUG)
