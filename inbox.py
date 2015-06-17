@@ -5,9 +5,10 @@ import email.parser
 import os
 from imapclient import IMAPClient
 from exceptions import HostNotFoundException
+from contextual import Contextual
 
 
-class Inbox(object):
+class Inbox(Contextual):
     def __init__(self, account, host=None):
         if host is None or host=="":
             logging.debug("No hostname provided, trying detection from username %s",
@@ -21,12 +22,6 @@ class Inbox(object):
         self.client = IMAPClient(host, use_uid=True, ssl=True)  # TODO: treat non-ssl
         msg = self.client.login(account.username, account.password)
         logging.debug(msg)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
 
     def close(self):
         msg = self.client.logout()
