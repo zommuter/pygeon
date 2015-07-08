@@ -7,6 +7,7 @@ if __name__ == "__main__":
     logging.root.setLevel(logging.DEBUG)
 
     # Please create an account.txt file containing username and password (one line each)
+    # Providing a host name is optional for user@host.tld type usernames
     with open('account.txt', 'r') as account:
         username = account.readline().strip()
         logging.debug("Username: %s", username)
