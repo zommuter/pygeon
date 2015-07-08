@@ -27,7 +27,7 @@ class Inbox(Contextual):
         msg = self.client.logout()
         logging.debug(msg)
 
-    def messages(self, folder="INBOX", searchstring="NOT DELETED"):
+    def messages(self, folder="INBOX", searchstring="NOT DELETED", keep_listening=True):
         fetchstr = b'RFC822'
         selection = self.client.select_folder(folder)
         logging.debug("IMAP selection: %s", selection)
@@ -40,3 +40,24 @@ class Inbox(Contextual):
             logging.debug("Parsing fetched message" + os.linesep + "%s", msg_bytes.decode('utf-8'))
             msg = email.parser.BytesParser().parsebytes(msg_bytes)
             yield uid, msg
+        logging.debug("All messages fetched")
+        if not keep_listening:
+            return
+        msg = self.client.subscribe_folder(folder)
+        logging.debug(str(msg))
+        while True:  # TODO: maybe a better abortion mechanism
+            logging.debug("Idling...")
+            self.client.idle()
+            idle = self.client.idle_check()  # TODO: use timeout
+            msg = self.client.idle_done()
+            # FIXME: while the new messages are fetched, new incoming ones aren't discovered!
+            logging.debug(str(msg))
+            for msg in idle:
+                logging.debug('Idle response: "%"', msg)
+                uid, state = msg
+                if state == "EXISTS":
+                    logging.debug("Fetching message %s", uid)
+                    msg_bytes = self.client.fetch(uid, [fetchstr])[uid][fetchstr]
+                    logging.debug("Parsing fetched message" + os.linesep + "%s", msg_bytes.decode('utf-8'))
+                    msg = email.parser.BytesParser().parsebytes(msg_bytes)
+                    yield uid, msg
