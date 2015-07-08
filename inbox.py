@@ -27,15 +27,13 @@ class Inbox(Contextual):
         msg = self.client.logout()
         logging.debug(msg)
 
-    def messages(self, folder=None):
-        if folder is None:
-            folder = "INBOX"
+    def messages(self, folder="INBOX", searchstring="NOT DELETED"):
         fetchstr = b'RFC822'
         selection = self.client.select_folder(folder)
         logging.debug("IMAP selection: %s", selection)
-        uids = self.client.search("NOT DELETED")
+        uids = self.client.search(searchstring)
         #uids = self.client.search("SUBJECT test")
-        logging.debug("Found %i not deleted messages, %s", len(uids), uids)
+        logging.debug('Found %i messages matching "%s", %s', len(uids), searchstring, uids)
         for uid in uids:
             logging.debug("Fetching message %s", uid)
             msg_bytes = self.client.fetch(uid, [fetchstr])[uid][fetchstr]
